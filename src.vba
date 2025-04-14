@@ -304,6 +304,18 @@ Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
     
 End Function
 
+'
+' 输出数据
+'
+Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
+
+    ExportData = False
+    
+    
+    ExportData = True
+    
+End Function
+
 
 
 '方法入口
@@ -328,6 +340,8 @@ Sub 获取定额()
         Exit Sub
     End If
     
+
+    
     ' 遍历选区中的每一列,有合并的情况
     'For Each col In selectedRange.Columns
     '    colNumbers = colNumbers & col.Column & ", "
@@ -342,13 +356,43 @@ Sub 获取定额()
         Exit Sub
     End If
     
+    '查选中的是否对
+    Dim cell As Range
+    Dim Colcount As Long
+    Set cell = Range(PosionABC(colNumber) + CStr(rowNumber))
+    If cell.MergeCells Then  '是合并的单元
+        Dim mergedArea As Range
+        Set mergedArea = cell.MergeArea
+        Colcount = mergedArea.Columns.Count
+    Else
+        Colcount = 1
+    End If
+    
+    Dim c As Long
+    Dim targetRow As Range
+    c = 0
+    For Each targetRow In Application.Selection.Rows
+        c = c + 1
+    Next targetRow
+    If (c * Colcount) <> Application.Selection.Count Then
+         MsgBox "只能选择一个连续的区域时，范围选择错了"
+        Exit Sub
+    End If
+
+    
+    '生成数据
     Deinfo = GetDeInfo(rowNumber - 1, colNumber)
     DeBasic = GetDeRCJ(rowNumber, colNumber, Deinfo)
     
+    '检查数据
     If Not CheckData(Deinfo, DeBasic) Then
         Exit Sub
     End If
        
+    '输出数据
+    If Not ExportData(Deinfo, DeBasic) Then
+        Exit Sub
+    End If
     
     MsgBox "已处理" & Deinfo(1)
 End Sub
