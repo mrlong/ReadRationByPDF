@@ -5,6 +5,7 @@
 '
 '
 '
+
 Function ABCPosion(Astr As String) As Integer
     ABCPosion = 0
     If Len(Astr) <> 1 Then Exit Function
@@ -91,6 +92,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
     Dim mystr2 As String
     Dim mymcs(1 To 10) As String '名称内容存在多个名称
     Dim mymcidx As Long
+    Dim pos As Long
     
     Dim rowMc As Long '材料名称列
     Dim rowDw As Long '材料单位列
@@ -153,8 +155,12 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             lr = myvalue
         End If
         
-        If (InStr(1, mystr2, "工作内容") > 0) And (InStr(1, mystr2, "计量单位") > 0) Then
-            gznr = myvalue
+        If (InStr(1, mystr2, "工作内容：") > 0) And (InStr(1, mystr2, "计量单位") > 0) Then
+            pos = InStrRev(myvalue, "计量单位")
+            dedw = StrTrim(Mid(myvalue, pos + 5))
+            gznr = StrTrim(Mid(myvalue, 6, pos - 6))
+            
+            Exit For '退出了，已找全部数据
         End If
         
         c = c + 1
