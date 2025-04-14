@@ -60,6 +60,7 @@ Function IsDoubleEqualAdv(a As Double, b As Double, Optional relTol As Double = 
     End If
 End Function
 
+
 '
 '获取单元格的值，考虑到单元格合并了
 '
@@ -280,6 +281,7 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
     GetDeRCJ = myBasicArr
 End Function
 
+
 '
 ' 校验数据的完整性
 '
@@ -292,12 +294,11 @@ Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
     '1. 检查综合单价=人工费+材料+机械+管理+利润
     myValue1 = ADeInfo(4)
     myValue2 = ADeInfo(5) + ADeInfo(6) + ADeInfo(7) + ADeInfo(8) + ADeInfo(9)
+    
     If Not IsDoubleEqualAdv(myValue1, myValue2) Then
-        MsgBox "定额" & Deinfo(1) & "综合单价<>人工费费+材料费+机机费+管理费+利润！"
+        MsgBox "定额" & ADeInfo(1) & "综合单价<>人工费费+材料费+机机费+管理费+利润！"
         Exit Function
     End If
-    
-    
     
     CheckData = True
     
