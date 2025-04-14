@@ -47,6 +47,19 @@ Function PosionABC(APos As Long) As String
     
 End Function
 
+'两个浮点数是否相同
+Function IsDoubleEqualAdv(a As Double, b As Double, Optional relTol As Double = 0.000000000001, Optional absTol As Double = 0.000000000000001) As Boolean
+    Dim diff As Double
+    diff = Abs(a - b)
+    
+    ' 当数值较大时用相对误差，较小时用绝对误差
+    If Abs(a) < 1 And Abs(b) < 1 Then
+        IsDoubleEqualAdv = (diff < absTol)
+    Else
+        IsDoubleEqualAdv = (diff < relTol * (Abs(a) + Abs(b)) / 2)
+    End If
+End Function
+
 '
 '获取单元格的值，考虑到单元格合并了
 '
@@ -190,19 +203,29 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
 End Function
 
 '获取定额的人材机
-Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As Boolean
+Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As Variant()
 
     Dim selectedRange As Range
     Dim targetRow As Range
     Dim outputStr As String
     Dim outputStr2 As String
     Dim myRow As Long
+    Dim myBasicArr() As Variant  '动态二维数组
+    Dim c As Long
+    Dim myStr As String
     
     Dim rowLx As Long '类型
-    Dim rowMc As Long '材料名称列
+    Dim rowMc As Long '材料名称规格列
     Dim rowDw As Long '单位列
     Dim rowDj As Long '单价列
-    Dim rowSl As Long '数量
+    Dim rowSl As Long '
+    
+    Dim cllx As String
+    Dim clmc As String
+    Dim clgg As String
+    Dim cldw As String
+    Dim cldj As Double
+    Dim clsl As Double
 
     rowLx = ABCPosion(Sheet2.Range("C2"))
     rowMc = ABCPosion(Sheet2.Range("C3"))
@@ -210,18 +233,74 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
     rowDj = ABCPosion(Sheet2.Range("C5"))
     
      '遍历选区中的每一行
-     Set selectedRange = Application.Selection
+    Set selectedRange = Application.Selection
+    ReDim myBasicArr(1 To selectedRange.Rows.Count, 1 To 6)
+    
+    c = 1
     For Each targetRow In selectedRange.Rows
         myRow = targetRow.Row
+        cldj = 0
+        clsl = 0
+        clmc = ""
+        clgg = ""
+        cldw = ""
             
-         ' 获取列的值，可能有多列
-        outputStr2 = ActiveSheet.Cells(myRow, AColIndex)
+        ' 获取列的值，可能有多列
+        cllx = StrTrim(GetCellValue(myRow, rowLx))
+        clmc = Trim(GetCellValue(myRow, rowMc))
+        cldw = StrTrim(GetCellValue(myRow, rowDw))
+        
+        myStr = Trim(GetCellValue(myRow, rowDj))
+        If IsNumeric(myStr) Then
+            cldj = GetCellValue(myRow, rowDj)
+        Else
+            cldj = 1
+        End If
+        
+        
+        myStr = Trim(GetCellValue(myRow, AColIndex))
+        If IsNumeric(myStr) Then
+            clsl = GetCellValue(myRow, AColIndex)
+        Else
+            clsl = 0
+        End If
+        
     
-        outputStr = outputStr & "行 " & rowNumber & " 的值: " & outputStr
+       myBasicArr(c, 1) = cllx
+       myBasicArr(c, 2) = clmc
+       myBasicArr(c, 3) = clgg
+       myBasicArr(c, 4) = cldw
+       myBasicArr(c, 5) = cldj
+       myBasicArr(c, 6) = clsl
+       c = c + 1
     
     Next targetRow
+    
 
-    GetDeRCJ = True
+    GetDeRCJ = myBasicArr
+End Function
+
+'
+' 校验数据的完整性
+'
+Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
+
+    Dim myValue1 As Double
+    Dim myValue2 As Double
+    
+    CheckData = False
+    '1. 检查综合单价=人工费+材料+机械+管理+利润
+    myValue1 = ADeInfo(4)
+    myValue2 = ADeInfo(5) + ADeInfo(6) + ADeInfo(7) + ADeInfo(8) + ADeInfo(9)
+    If Not IsDoubleEqualAdv(myValue1, myValue2) Then
+        MsgBox "定额" & Deinfo(1) & "综合单价<>人工费费+材料费+机机费+管理费+利润！"
+        Exit Function
+    End If
+    
+    
+    
+    CheckData = True
+    
 End Function
 
 
@@ -234,7 +313,9 @@ Sub 获取定额()
     Dim col As Range
 
     Dim Deinfo() As Variant
+    Dim DeBasic() As Variant '动态二维数组
     Dim myBool As Boolean
+
     
     
     On Error Resume Next
@@ -261,8 +342,12 @@ Sub 获取定额()
     End If
     
     Deinfo = GetDeInfo(rowNumber - 1, colNumber)
-    myBool = GetDeRCJ(rowNumber, colNumber, Deinfo)
+    DeBasic = GetDeRCJ(rowNumber, colNumber, Deinfo)
     
+    If Not CheckData(Deinfo, DeBasic) Then
+        Exit Sub
+    End If
+       
     
     MsgBox "已处理" & Deinfo(1)
 End Sub
