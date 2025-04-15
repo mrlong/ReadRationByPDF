@@ -354,10 +354,56 @@ End Function
 ' 输出数据
 '
 Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
-
+    
     ExportData = False
+    Dim WriteRowIdx As Long
+    Dim lx As String
     
     
+    WriteRowIdx = CInt(Sheet2.Range("E2")) '写入值的开始行
+    
+    '1. 写入定额
+    Sheet2.Range("A" + CStr(WriteRowIdx)) = "定"
+    Sheet2.Range("B" + CStr(WriteRowIdx)) = 1
+    Sheet2.Range("C" + CStr(WriteRowIdx)) = ADeInfo(1) '编号
+    Sheet2.Range("D" + CStr(WriteRowIdx)) = ADeInfo(2) '名称
+    Sheet2.Range("E" + CStr(WriteRowIdx)) = ADeInfo(3) '单位
+    Sheet2.Range("F" + CStr(WriteRowIdx)) = ADeInfo(4) '综合单价
+    Sheet2.Range("H" + CStr(WriteRowIdx)) = ADeInfo(5) '人工费
+    Sheet2.Range("I" + CStr(WriteRowIdx)) = ADeInfo(6) '材料费
+    Sheet2.Range("J" + CStr(WriteRowIdx)) = ADeInfo(7) '机械费
+    WriteRowIdx = WriteRowIdx + 1
+    
+    '2. 写入材料
+    Dim i As Long, j As Long
+    For i = LBound(ADeBasic, 1) To UBound(ADeBasic, 1) '遍历行
+        lx = "其他"
+        If ADeBasic(i, 1) = "人工" Then
+            lx = "人"
+        End If
+        If ADeBasic(i, 1) = "材料" Then
+            lx = "材"
+        End If
+        If ADeBasic(i, 1) = "机械" Then
+            lx = "机"
+        End If
+        
+        If ADeBasic(i, 6) <> 0 Then
+        
+            Sheet2.Range("A" + CStr(WriteRowIdx)) = lx
+            Sheet2.Range("B" + CStr(WriteRowIdx)) = 2
+            Sheet2.Range("D" + CStr(WriteRowIdx)) = ADeBasic(i, 2)
+            Sheet2.Range("E" + CStr(WriteRowIdx)) = ADeBasic(i, 4) '单位
+            Sheet2.Range("F" + CStr(WriteRowIdx)) = ADeBasic(i, 5) '单位
+            Sheet2.Range("G" + CStr(WriteRowIdx)) = ADeBasic(i, 6) '数量
+        
+            WriteRowIdx = WriteRowIdx + 1
+        End If
+    Next i
+    
+    
+    
+    Sheet2.Range("E2") = WriteRowIdx
     ExportData = True
     
 End Function
