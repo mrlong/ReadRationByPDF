@@ -94,7 +94,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
     Dim c As Long
     Dim rgf As Double '人工费
     Dim clf As Double '材料费
-    Dim jxf As Double '机械费
+    Dim Jxf As Double '机械费
     Dim glf As Double '管理费
     Dim lr As Double   '利润
     Dim zhdj As Double  '综合单价
@@ -120,7 +120,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
     
     rgf = 0
     clf = 0
-    jxf = 0
+    Jxf = 0
     glf = 0
     lr = 0
     zhdj = 0
@@ -158,7 +158,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
         End If
         
         If (InStr(1, mystr2, "机械费") > 0) Then
-            jxf = myvalue
+            Jxf = myvalue
         End If
         
         If (InStr(1, mystr2, "管理费") > 0) Then
@@ -195,7 +195,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
    mydata(4) = zhdj
    mydata(5) = rgf
    mydata(6) = clf
-   mydata(7) = jxf
+   mydata(7) = Jxf
    mydata(8) = glf
    mydata(9) = lr
    mydata(10) = gznr
@@ -289,6 +289,10 @@ Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
 
     Dim myValue1 As Double
     Dim myValue2 As Double
+    Dim rgf As Double
+    Dim clf As Double
+    Dim Jxf As Double
+    
     
     CheckData = False
     '1. 检查综合单价=人工费+材料+机械+管理+利润
@@ -299,6 +303,48 @@ Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
         MsgBox "定额" & ADeInfo(1) & "综合单价<>人工费费+材料费+机机费+管理费+利润！"
         Exit Function
     End If
+    
+    rgf = 0
+    clf = 0
+    Jxf = 0
+    
+    '2. 检查人工费合计
+    Dim i As Long, j As Long
+    For i = LBound(ADeBasic, 1) To UBound(ADeBasic, 1) '遍历行
+        If ADeBasic(i, 1) = "人工" Then
+            rgf = rgf + ADeBasic(i, 5) * ADeBasic(i, 6)
+        End If
+        
+        If ADeBasic(i, 1) = "材料" Then
+            clf = clf + ADeBasic(i, 5) * ADeBasic(i, 6)
+        End If
+        
+        If ADeBasic(i, 1) = "机械" Then
+            Jxf = Jxf + ADeBasic(i, 5) * ADeBasic(i, 6)
+        End If
+    Next i
+    
+    myValue1 = CDbl(Format(rgf, "0.00"))
+    myValue2 = ADeInfo(5)
+    If Not IsDoubleEqualAdv(myValue1, myValue2) Then
+        MsgBox "定额" & ADeInfo(1) & "人工费<>分析的人工*数量！"
+        Exit Function
+    End If
+    
+    myValue1 = CDbl(Format(clf, "0.00"))
+    myValue2 = ADeInfo(6)
+    If Not IsDoubleEqualAdv(myValue1, myValue2) Then
+        MsgBox "定额" & ADeInfo(1) & "材料费<>分析的材料*数量！"
+        Exit Function
+    End If
+    
+    myValue1 = CDbl(Format(Jxf, "0.00"))
+    myValue2 = ADeInfo(7)
+    If Not IsDoubleEqualAdv(myValue1, myValue2) Then
+        MsgBox "定额" & ADeInfo(1) & "机械费<>分析的机械*数量！"
+        Exit Function
+    End If
+    
     
     CheckData = True
     
