@@ -364,7 +364,6 @@ Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
     
     '1. 写入定额
     Sheet2.Range("A" + CStr(WriteRowIdx)) = "定"
-    Sheet2.Range("B" + CStr(WriteRowIdx)) = 1
     Sheet2.Range("C" + CStr(WriteRowIdx)) = ADeInfo(1) '编号
     Sheet2.Range("D" + CStr(WriteRowIdx)) = ADeInfo(2) '名称
     Sheet2.Range("E" + CStr(WriteRowIdx)) = ADeInfo(3) '单位
@@ -372,6 +371,9 @@ Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
     Sheet2.Range("H" + CStr(WriteRowIdx)) = ADeInfo(5) '人工费
     Sheet2.Range("I" + CStr(WriteRowIdx)) = ADeInfo(6) '材料费
     Sheet2.Range("J" + CStr(WriteRowIdx)) = ADeInfo(7) '机械费
+    Sheet2.Range("M" + CStr(WriteRowIdx)) = ADeInfo(10) '工作内容
+    Sheet2.Range("A" + CStr(WriteRowIdx) + ":N" + CStr(WriteRowIdx)).Interior.Color = RGB(240, 240, 240)
+    
     WriteRowIdx = WriteRowIdx + 1
     
     '2. 写入材料
@@ -391,17 +393,38 @@ Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
         If ADeBasic(i, 6) <> 0 Then
         
             Sheet2.Range("A" + CStr(WriteRowIdx)) = lx
-            Sheet2.Range("B" + CStr(WriteRowIdx)) = 2
             Sheet2.Range("D" + CStr(WriteRowIdx)) = ADeBasic(i, 2)
             Sheet2.Range("E" + CStr(WriteRowIdx)) = ADeBasic(i, 4) '单位
-            Sheet2.Range("F" + CStr(WriteRowIdx)) = ADeBasic(i, 5) '单位
+            Sheet2.Range("F" + CStr(WriteRowIdx)) = ADeBasic(i, 5) '单价
             Sheet2.Range("G" + CStr(WriteRowIdx)) = ADeBasic(i, 6) '数量
         
             WriteRowIdx = WriteRowIdx + 1
         End If
     Next i
     
+    '加管理费
+    If (ADeInfo(8) <> 0) Then
     
+        Sheet2.Range("A" + CStr(WriteRowIdx)) = "其他"
+        Sheet2.Range("C" + CStr(WriteRowIdx)) = "GLF"
+        Sheet2.Range("D" + CStr(WriteRowIdx)) = "管理费"
+        Sheet2.Range("E" + CStr(WriteRowIdx)) = "元" '单位
+        Sheet2.Range("F" + CStr(WriteRowIdx)) = 1 '单价
+        Sheet2.Range("G" + CStr(WriteRowIdx)) = ADeInfo(8) '数量
+        WriteRowIdx = WriteRowIdx + 1
+    End If
+    
+    '加利润
+    If (ADeInfo(9) <> 0) Then
+    
+        Sheet2.Range("A" + CStr(WriteRowIdx)) = "其他"
+        Sheet2.Range("C" + CStr(WriteRowIdx)) = "LR"
+        Sheet2.Range("D" + CStr(WriteRowIdx)) = "利润"
+        Sheet2.Range("E" + CStr(WriteRowIdx)) = "元" '单位
+        Sheet2.Range("F" + CStr(WriteRowIdx)) = 1 '单价
+        Sheet2.Range("G" + CStr(WriteRowIdx)) = ADeInfo(9) '数量
+        WriteRowIdx = WriteRowIdx + 1
+    End If
     
     Sheet2.Range("E2") = WriteRowIdx
     ExportData = True
@@ -486,6 +509,6 @@ Sub 获取定额()
         Exit Sub
     End If
     
-    MsgBox "已处理" & Deinfo(1)
+    MsgBox "成功" & Deinfo(1)
 End Sub
 
