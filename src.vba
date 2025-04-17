@@ -146,27 +146,51 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
         
         
         If (InStr(1, mystr2, "综合单价") > 0) Then
-            zhdj = myvalue
+            If IsNumeric(myvalue) Then
+                zhdj = myvalue
+            Else
+                zhdj = 0
+            End If
         End If
         
         If (InStr(1, mystr2, "人工费") > 0) Then
-            rgf = myvalue
+            If IsNumeric(myvalue) Then
+                rgf = myvalue
+            Else
+                rgf = 0
+            End If
         End If
         
         If (InStr(1, mystr2, "材料费") > 0) Then
-            clf = myvalue
+            If IsNumeric(myvalue) Then
+                clf = myvalue
+            Else
+                clf = 0
+            End If
         End If
         
         If (InStr(1, mystr2, "机械费") > 0) Then
-            Jxf = myvalue
+            If IsNumeric(myvalue) Then
+                Jxf = myvalue
+            Else
+                Jxf = 0
+            End If
         End If
         
         If (InStr(1, mystr2, "管理费") > 0) Then
-            glf = myvalue
+            If IsNumeric(myvalue) Then
+                glf = myvalue
+            Else
+                glf = 0
+            End If
         End If
         
         If (InStr(1, mystr2, "利润") > 0) Then
-            lr = myvalue
+            If IsNumeric(myvalue) Then
+                lr = myvalue
+            Else
+                lr = 0
+            End If
         End If
         
         If (InStr(1, mystr2, "工作内容：") > 0) And (InStr(1, mystr2, "计量单位") > 0) Then
@@ -267,14 +291,27 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
         End If
         
     
-       myBasicArr(c, 1) = cllx
-       myBasicArr(c, 2) = clmc
-       myBasicArr(c, 3) = clgg
-       myBasicArr(c, 4) = cldw
-       myBasicArr(c, 5) = cldj
-       myBasicArr(c, 6) = clsl
-       c = c + 1
-    
+        '检查有没有重复的值有则不增加了。
+        Dim i As Long
+        Dim has As Boolean
+        has = False
+        
+        For i = LBound(myBasicArr, 1) To UBound(myBasicArr, 1) '遍历行
+            If (myBasicArr(i, 1) = cllx) And (myBasicArr(i, 2) = clmc) And (myBasicArr(i, 3) = clgg) And (myBasicArr(i, 4) = cldw) And (myBasicArr(i, 5) = cldj) And (myBasicArr(i, 6) = clsl) Then
+                has = True
+                Exit For
+            End If
+        Next i
+       
+        If Not has Then
+            myBasicArr(c, 1) = cllx
+            myBasicArr(c, 2) = clmc
+            myBasicArr(c, 3) = clgg
+            myBasicArr(c, 4) = cldw
+            myBasicArr(c, 5) = cldj
+            myBasicArr(c, 6) = clsl
+            c = c + 1
+        End If
     Next targetRow
     
 
@@ -511,4 +548,5 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
