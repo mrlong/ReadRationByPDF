@@ -5,6 +5,7 @@
 ' 修改内容
 ' 1  2025-4-18 支持安装专业的没有数量的情况，并安装有仪表费用
 ' 2  2025-4-18 增加没有工作内容或单位时，要提醒出错。
+' 3  2025-4-18 处理安装与土建选择区域的问题。
 '
 '
 
@@ -553,7 +554,7 @@ Sub 获取定额()
     If (zy = 1) And StrTrim(GetCellValue(rowNumber - 1, colNumber)) <> "数量" Then
         MsgBox "只能选择一个连续的区域时，第一个选择定额的第一个材料！"
         Exit Sub
-    Else
+    ElseIf (zy = 2) Then
         Dim colRgf As Long  '人工费列
         Dim lrstr As String
         colRgf = ABCPosion(Sheet2.Range("E7"))
@@ -611,6 +612,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
