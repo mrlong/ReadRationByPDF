@@ -2,7 +2,9 @@
 ' 根据选中的行提取出定额数据
 ' 并进行数据的检查检对。
 ' 作者：龙仕云  2025-4-13
-'
+' 修改内容
+' 1  2025-4-18 支持安装专业的没有数量的情况，并安装有仪表费用
+' 2
 '
 '
 
@@ -44,7 +46,24 @@ Function PosionABC(APos As Long) As String
     If APos = 13 Then PosionABC = "M"
     If APos = 14 Then PosionABC = "N"
     If APos = 15 Then PosionABC = "O"
+    If APos = 16 Then PosionABC = "P"
+    If APos = 17 Then PosionABC = "Q"
+    If APos = 18 Then PosionABC = "R"
+    If APos = 19 Then PosionABC = "S"
+    If APos = 20 Then PosionABC = "T"
+    If APos = 21 Then PosionABC = "U"
+    If APos = 22 Then PosionABC = "V"
+    If APos = 23 Then PosionABC = "W"
+    If APos = 24 Then PosionABC = "X"
+    If APos = 25 Then PosionABC = "Y"
+    If APos = 26 Then PosionABC = "Z"
+    If APos = 27 Then PosionABC = "AA"
+    If APos = 28 Then PosionABC = "AB"
+    If APos = 29 Then PosionABC = "AC"
     
+    
+    
+     
 End Function
 
 '两个浮点数是否相同
@@ -86,11 +105,15 @@ Function StrTrim(ByVal Astr As String) As String
     ' 去中间所有空格
     StrTrim = Replace(StrTrim, " ", "")
 End Function
+'删除字符串的回车换行字符串vbCr、vbLf
+Function StrCrLf(ByVal Astr As String) As String
+    StrCrLf = Replace(Replace(Astr, Chr(10), ""), Chr(13), "")
+End Function
 
 '获取定额信息
 Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
     Dim myRow As Long
-    Dim mydata(1 To 10) As Variant
+    Dim mydata(1 To 11) As Variant
     Dim c As Long
     Dim rgf As Double '人工费
     Dim clf As Double '材料费
@@ -98,6 +121,8 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
     Dim glf As Double '管理费
     Dim lr As Double   '利润
     Dim zhdj As Double  '综合单价
+    Dim ybf As Double  ' 仪表费 安装内有
+    
     Dim debh As String '定额编号
     Dim demc As String '定额名称
     Dim dedw As String '定额单位
@@ -117,13 +142,13 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
     rowDw = ABCPosion(Sheet2.Range("C4"))
     
     
-    
     rgf = 0
     clf = 0
     Jxf = 0
     glf = 0
     lr = 0
     zhdj = 0
+    ybf = 0
     c = 1
     mymcidx = 1
     
@@ -193,6 +218,14 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
+        If (InStr(1, mystr2, "仪表费") > 0) Then
+            If IsNumeric(myvalue) Then
+                ybf = myvalue
+            Else
+                ybf = 0
+            End If
+        End If
+        
         If (InStr(1, mystr2, "工作内容：") > 0) And (InStr(1, mystr2, "计量单位") > 0) Then
             pos = InStrRev(myvalue, "计量单位")
             dedw = StrTrim(Mid(myvalue, pos + 5))
@@ -223,6 +256,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
    mydata(8) = glf
    mydata(9) = lr
    mydata(10) = gznr
+   mydata(11) = ybf
    
    GetDeInfo = mydata
 End Function
@@ -243,7 +277,7 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
     Dim rowMc As Long '材料名称规格列
     Dim rowDw As Long '单位列
     Dim rowDj As Long '单价列
-    Dim rowSl As Long '
+    Dim rowSl As Long '数据列
     
     Dim cllx As String
     Dim clmc As String
@@ -271,7 +305,7 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
         cldw = ""
             
         ' 获取列的值，可能有多列
-        cllx = StrTrim(GetCellValue(myRow, rowLx))
+        cllx = StrCrLf(StrTrim(GetCellValue(myRow, rowLx)))
         clmc = Trim(GetCellValue(myRow, rowMc))
         cldw = StrTrim(GetCellValue(myRow, rowDw))
         
@@ -334,7 +368,7 @@ Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
     CheckData = False
     '1. 检查综合单价=人工费+材料+机械+管理+利润
     myValue1 = ADeInfo(4)
-    myValue2 = ADeInfo(5) + ADeInfo(6) + ADeInfo(7) + ADeInfo(8) + ADeInfo(9)
+    myValue2 = ADeInfo(5) + ADeInfo(6) + ADeInfo(7) + ADeInfo(8) + ADeInfo(9) + ADeInfo(11) '11=仪表费
     
     If Not IsDoubleEqualAdv(myValue1, myValue2) Then
         MsgBox "定额" & ADeInfo(1) & "综合单价<>人工费费+材料费+机机费+管理费+利润！"
@@ -480,6 +514,8 @@ Sub 获取定额()
     Dim Deinfo() As Variant
     Dim DeBasic() As Variant '动态二维数组
     Dim myBool As Boolean
+    Dim zy As Long
+    
 
     
     
@@ -503,10 +539,26 @@ Sub 获取定额()
     '提取定额数据
     rowNumber = Application.Selection.Row
     colNumber = Application.Selection.Column
-    If StrTrim(GetCellValue(rowNumber - 1, colNumber)) <> "数量" Then
+    
+    zy = Sheet2.Range("G7")
+    
+    '土建上面一行是数量，但安装定额没有
+    If (zy = 1) And StrTrim(GetCellValue(rowNumber - 1, colNumber)) <> "数量" Then
         MsgBox "只能选择一个连续的区域时，第一个选择定额的第一个材料！"
         Exit Sub
+    Else
+        Dim colRgf As Long  '人工费列
+        Dim lrstr As String
+        colRgf = ABCPosion(Sheet2.Range("E7"))
+        lrstr = StrTrim(GetCellValue(rowNumber - 1, colRgf))
+        If InStr(1, lrstr, "利润") <> 1 Then
+            MsgBox "只能选择一个连续的区域时，第一个选择定额的第一个材料！"
+            Exit Sub
+        End If
     End If
+    
+    
+    
     
     '查选中的是否对
     Dim cell As Range
@@ -533,7 +585,11 @@ Sub 获取定额()
 
     
     '生成数据
-    Deinfo = GetDeInfo(rowNumber - 1, colNumber)
+    If zy = 1 Then
+        Deinfo = GetDeInfo(rowNumber - 1, colNumber)
+    Else
+        Deinfo = GetDeInfo(rowNumber, colNumber) '安装定额没有数量这行，所以直接向上就是利润列了
+    End If
     DeBasic = GetDeRCJ(rowNumber, colNumber, Deinfo)
     
     '检查数据
@@ -548,5 +604,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
+
 
 
