@@ -4,7 +4,7 @@
 ' 作者：龙仕云  2025-4-13
 ' 修改内容
 ' 1  2025-4-18 支持安装专业的没有数量的情况，并安装有仪表费用
-' 2
+' 2  2025-4-18 增加没有工作内容或单位时，要提醒出错。
 '
 '
 
@@ -374,6 +374,13 @@ Function CheckData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
         MsgBox "定额" & ADeInfo(1) & "综合单价<>人工费费+材料费+机机费+管理费+利润！"
         Exit Function
     End If
+    
+    '2 检查有没有工作内容与单位
+    If ADeInfo(3) = "" Then
+        MsgBox "定额" & ADeInfo(1) & "单位为空，请检查一下"
+        Exit Function
+    End If
+    
     
     rgf = 0
     clf = 0
