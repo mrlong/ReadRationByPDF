@@ -6,6 +6,7 @@
 ' 1  2025-4-18 支持安装专业的没有数量的情况，并安装有仪表费用
 ' 2  2025-4-18 增加没有工作内容或单位时，要提醒出错。
 ' 3  2025-4-18 处理安装与土建选择区域的问题。
+' 4  2024-4-21 增加写入行有内容要提示。
 '
 '
 
@@ -441,6 +442,12 @@ Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
     
     WriteRowIdx = CInt(Sheet2.Range("E2")) '写入值的开始行
     
+    If Sheet2.Range("A" + CStr(WriteRowIdx)) <> "" Then
+        MsgBox "写入行有内容，你检查你的写入行的行数据。"
+        Exit Function
+    End If
+    
+    
     '1. 写入定额
     Sheet2.Range("A" + CStr(WriteRowIdx)) = "定"
     Sheet2.Range("C" + CStr(WriteRowIdx)) = ADeInfo(1) '编号
@@ -564,8 +571,6 @@ Sub 获取定额()
             Exit Sub
         End If
     End If
-    
-    
     
     
     '查选中的是否对
