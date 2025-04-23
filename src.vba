@@ -6,8 +6,8 @@
 ' 1  2025-4-18 支持安装专业的没有数量的情况，并安装有仪表费用
 ' 2  2025-4-18 增加没有工作内容或单位时，要提醒出错。
 ' 3  2025-4-18 处理安装与土建选择区域的问题。
-' 4  2024-4-21 增加写入行有内容要提示。
-'
+' 4  2025-4-21 增加写入行有内容要提示。
+' 5  2025-4-23 处理安装中带有主材的情况。
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -86,11 +86,11 @@ End Function
 '获取单元格的值，考虑到单元格合并了
 '
 Function GetCellValue(ArowNumber As Long, AcolNumber As Long) As Variant
-    Dim myStr As String
+    Dim mystr As String
     Dim targetCell As Range
     
-    myStr = PosionABC(AcolNumber) + CStr(ArowNumber)
-    Set targetCell = Range(myStr) ' 要检查的单元格
+    mystr = PosionABC(AcolNumber) + CStr(ArowNumber)
+    Set targetCell = Range(mystr) ' 要检查的单元格
     
     If targetCell.MergeCells Then
         GetCellValue = targetCell.MergeArea.Cells(1, 1).Value
@@ -110,6 +110,16 @@ End Function
 '删除字符串的回车换行字符串vbCr、vbLf
 Function StrCrLf(ByVal Astr As String) As String
     StrCrLf = Replace(Replace(Astr, Chr(10), ""), Chr(13), "")
+End Function
+
+'获取(123.2) 中的数据
+Function GetZCAmount(Astr As String) As Double
+    ' 删除所有括号
+    Dim mystr As String
+    mystr = Replace(Replace(Astr, "(", ""), ")", "")
+    
+    ' 转换为数值
+    GetZCAmount = CDbl(mystr)
 End Function
 
 '获取定额信息
@@ -273,7 +283,7 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
     Dim myRow As Long
     Dim myBasicArr() As Variant  '动态二维数组
     Dim c As Long
-    Dim myStr As String
+    Dim mystr As String
     
     Dim rowLx As Long '类型
     Dim rowMc As Long '材料名称规格列
@@ -311,19 +321,27 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
         clmc = Trim(GetCellValue(myRow, rowMc))
         cldw = StrTrim(GetCellValue(myRow, rowDw))
         
-        myStr = Trim(GetCellValue(myRow, rowDj))
-        If IsNumeric(myStr) Then
+        mystr = Trim(GetCellValue(myRow, rowDj))
+        If IsNumeric(mystr) Then
             cldj = GetCellValue(myRow, rowDj)
         Else
-            cldj = 1
+            If cllx = "主材" Then
+                cldj = 0
+            Else
+                cldj = 1
+            End If
         End If
         
         
-        myStr = Trim(GetCellValue(myRow, AColIndex))
-        If IsNumeric(myStr) Then
-            clsl = GetCellValue(myRow, AColIndex)
+        mystr = Trim(GetCellValue(myRow, AColIndex))
+        If cllx = "主材" Then
+            clsl = GetZCAmount(mystr)
         Else
-            clsl = 0
+            If IsNumeric(mystr) Then
+                clsl = GetCellValue(myRow, AColIndex)
+            Else
+                clsl = 0
+            End If
         End If
         
     
@@ -476,6 +494,10 @@ Function ExportData(ADeInfo() As Variant, ADeBasic() As Variant) As Boolean
             lx = "机"
         End If
         
+        If ADeBasic(i, 1) = "主材" Then
+            lx = "主"
+        End If
+        
         If ADeBasic(i, 6) <> 0 Then
         
             Sheet2.Range("A" + CStr(WriteRowIdx)) = lx
@@ -617,6 +639,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
