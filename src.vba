@@ -8,6 +8,7 @@
 ' 3  2025-4-18 处理安装与土建选择区域的问题。
 ' 4  2025-4-21 增加写入行有内容要提示。
 ' 5  2025-4-23 处理安装中带有主材的情况。
+' 6  2025-4-23 修改主材的数据为—的情况。
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -335,7 +336,11 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
         
         mystr = Trim(GetCellValue(myRow, AColIndex))
         If cllx = "主材" Then
-            clsl = GetZCAmount(mystr)
+            If (mystr = "-") Or (mystr = "—") Then
+                clsl = 0
+            Else
+                clsl = GetZCAmount(mystr)
+            End If
         Else
             If IsNumeric(mystr) Then
                 clsl = GetCellValue(myRow, AColIndex)
@@ -639,6 +644,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
