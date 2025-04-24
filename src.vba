@@ -10,6 +10,7 @@
 ' 5  2025-4-23 处理安装中带有主材的情况。
 ' 6  2025-4-23 修改主材的数据为—的情况。
 ' 7  2025-4-24 处理定额的单位有见表情况。
+' 8  2025-4-24 将列放大到AJ
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -64,6 +65,17 @@ Function PosionABC(APos As Long) As String
     If APos = 27 Then PosionABC = "AA"
     If APos = 28 Then PosionABC = "AB"
     If APos = 29 Then PosionABC = "AC"
+    If APos = 30 Then PosionABC = "AD"
+    If APos = 31 Then PosionABC = "AE"
+    If APos = 32 Then PosionABC = "AF"
+    If APos = 33 Then PosionABC = "AG"
+    If APos = 34 Then PosionABC = "AI"
+    If APos = 35 Then PosionABC = "AJ"
+    
+    
+    
+    
+    
     
     
     
@@ -652,6 +664,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
