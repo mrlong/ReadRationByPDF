@@ -9,6 +9,7 @@
 ' 4  2025-4-21 增加写入行有内容要提示。
 ' 5  2025-4-23 处理安装中带有主材的情况。
 ' 6  2025-4-23 修改主材的数据为—的情况。
+' 7  2025-4-24 处理定额的单位有见表情况。
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -182,6 +183,10 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             mymcidx = mymcidx + 1
         End If
         
+        If (InStr(1, mystr2, "单位") > 0) And (dedw = "") Then
+            dedw = myvalue
+        End If
+        
         
         If (InStr(1, mystr2, "综合单价") > 0) Then
             If IsNumeric(myvalue) Then
@@ -241,7 +246,10 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
         
         If (InStr(1, mystr2, "工作内容：") > 0) And (InStr(1, mystr2, "计量单位") > 0) Then
             pos = InStrRev(myvalue, "计量单位")
-            dedw = StrTrim(Mid(myvalue, pos + 5))
+            If dedw = "" Then
+                dedw = StrTrim(Mid(myvalue, pos + 5))
+            End If
+            
             gznr = StrTrim(Mid(myvalue, 6, pos - 6))
             
             Exit For '退出了，已找全部数据
@@ -644,6 +652,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
