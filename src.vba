@@ -11,6 +11,7 @@
 ' 6  2025-4-23 修改主材的数据为—的情况。
 ' 7  2025-4-24 处理定额的单位有见表情况。
 ' 8  2025-4-24 将列放大到AJ
+' 9  2025-4-25 修改之前定额单位有见表的情况。
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -195,7 +196,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             mymcidx = mymcidx + 1
         End If
         
-        If (InStr(1, mystr2, "单位") > 0) And (dedw = "") Then
+        If (InStr(1, mystr2, "单位") > 0) And (dedw = "") And (InStr(1, mystr2, "计量单位") = 0) And (InStr(1, mystr2, "工作内容") = 0) Then
             dedw = myvalue
         End If
         
@@ -664,6 +665,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
