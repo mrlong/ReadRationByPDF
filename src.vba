@@ -12,6 +12,7 @@
 ' 7  2025-4-24 处理定额的单位有见表情况。
 ' 8  2025-4-24 将列放大到AJ
 ' 9  2025-4-25 修改之前定额单位有见表的情况。
+' 10 2025-4-25 修改定额名称变了工作内容了，原因是工作内容有项目两个字。
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -187,11 +188,11 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
         mystr2 = StrTrim(mystr2)
                 
         
-        If (InStr(1, mystr2, "定额编号") > 0) Then
+        If (InStr(1, mystr2, "定额编号") > 0) And (debh = "") Then
             debh = myvalue
         End If
         
-        If (InStr(1, mystr2, "项目") > 0) Then
+        If (InStr(1, mystr2, "项目") > 0) And (debh = "") Then
             mymcs(mymcidx) = myvalue
             mymcidx = mymcidx + 1
         End If
@@ -201,7 +202,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
         End If
         
         
-        If (InStr(1, mystr2, "综合单价") > 0) Then
+        If (InStr(1, mystr2, "综合单价") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 zhdj = myvalue
             Else
@@ -209,7 +210,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
-        If (InStr(1, mystr2, "人工费") > 0) Then
+        If (InStr(1, mystr2, "人工费") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 rgf = myvalue
             Else
@@ -217,7 +218,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
-        If (InStr(1, mystr2, "材料费") > 0) Then
+        If (InStr(1, mystr2, "材料费") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 clf = myvalue
             Else
@@ -225,7 +226,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
-        If (InStr(1, mystr2, "机械费") > 0) Then
+        If (InStr(1, mystr2, "机械费") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 Jxf = myvalue
             Else
@@ -233,7 +234,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
-        If (InStr(1, mystr2, "管理费") > 0) Then
+        If (InStr(1, mystr2, "管理费") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 glf = myvalue
             Else
@@ -241,7 +242,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
-        If (InStr(1, mystr2, "利润") > 0) Then
+        If (InStr(1, mystr2, "利润") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 lr = myvalue
             Else
@@ -249,7 +250,7 @@ Function GetDeInfo(ARowIndex As Long, AColIndex As Long) As Variant()
             End If
         End If
         
-        If (InStr(1, mystr2, "仪表费") > 0) Then
+        If (InStr(1, mystr2, "仪表费") > 0) And (debh = "") Then
             If IsNumeric(myvalue) Then
                 ybf = myvalue
             Else
@@ -665,6 +666,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
