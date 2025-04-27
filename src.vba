@@ -13,6 +13,7 @@
 ' 8  2025-4-24 将列放大到AJ
 ' 9  2025-4-25 修改之前定额单位有见表的情况。
 ' 10 2025-4-25 修改定额名称变了工作内容了，原因是工作内容有项目两个字。
+' 11 2025-4-27 主材的含量为空的处理
 '
 
 Function ABCPosion(Astr As String) As Integer
@@ -358,7 +359,7 @@ Function GetDeRCJ(ARowIndex As Long, AColIndex As Long, ADeInfo() As Variant) As
         
         mystr = Trim(GetCellValue(myRow, AColIndex))
         If cllx = "主材" Then
-            If (mystr = "-") Or (mystr = "—") Then
+            If (mystr = "-") Or (mystr = "—") Or (mystr = "") Then
                 clsl = 0
             Else
                 clsl = GetZCAmount(mystr)
@@ -666,6 +667,7 @@ Sub 获取定额()
     
     MsgBox "成功" & Deinfo(1)
 End Sub
+
 
 
 
